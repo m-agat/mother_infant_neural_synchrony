@@ -1,3 +1,5 @@
+getting_started.ipynb
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -5,6 +7,8 @@ __pycache__/
 
 # C extensions
 *.so
+*.bdf
+*.fif
 
 # Distribution / packaging
 .Python
