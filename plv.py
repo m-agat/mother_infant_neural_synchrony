@@ -1,4 +1,5 @@
 import os
+import json
 import mne
 import numpy as np
 import scipy.signal as sig
@@ -8,25 +9,28 @@ from load_data import Mom
 from hypyp import analyses
 from copy import copy
 
-# path to the folder with all participants
-dataPath = os.path.join(os.getcwd(), "dyad_data/preprocessed_data")
-allDyadsDir = os.listdir(dataPath)  # folder with all participants
-dyadPath = os.path.join(dataPath, allDyadsDir[0])
-dyadDir = sorted(os.listdir(dyadPath))
-stagePath = os.path.join(dyadPath, dyadDir[4])
+# # path to the folder with all participants
+# dataPath = os.path.join(os.getcwd(), "dyad_data/preprocessed_data")
+# allDyadsDir = os.listdir(dataPath)  # folder with all participants
+# dyadPath = os.path.join(dataPath, allDyadsDir[0])
+# dyadDir = sorted(os.listdir(dyadPath))
+# stagePath = os.path.join(dyadPath, dyadDir[4])
 
 # dyad = DataLoader(stagePath)
 # dyad.read_data()
 
-baby = Infant("Infant036_1.fif")
-baby.read_data()
+# baby = Infant("Infant036_1.fif")
+# baby.read_data()
 
-mom = Mom("Mother036_1.fif")
-mom.read_data()
+# mom = Mom("Mother036_1.fif")
+# mom.read_data()
 
 
-class plvComputation:
+class PLV:
     def __init__(self, baby_epochs, mom_epochs):
+        '''
+        Computes PLV for one dyad
+        '''
         self.babyEpochs = baby_epochs
         self.momEpochs = mom_epochs
         self.data = np.array([np.array(baby_epochs), np.array(mom_epochs)])
@@ -35,6 +39,7 @@ class plvComputation:
                            'Alpha-Baby': [6, 9],
                            'Alpha-Mom': [8, 12]}
         self.sampling_rate = self.babyEpochs.info["sfreq"]
+
 
     def get_plv(self):
         complex_signal = analyses.compute_freq_bands(self.data, self.sampling_rate, self.freq_bands)
@@ -84,8 +89,8 @@ class plvComputation:
         alpha_baby_indices = np.where((freqsn[0] <= self.freq_bands['Alpha-Baby'][1]) & (freqsm[0] >= self.freq_bands['Alpha-Baby'][0]))[0]
         alpha_mom_indices = np.where((freqsn[0] <= self.freq_bands['Alpha-Mom'][1]) & (freqsm[0] >= self.freq_bands['Alpha-Mom'][0]))[0]
 
-        phase[:, :, alpha_baby_indices, :n_ch] = n_mult * phase[:, :, alpha_baby_indices, :n_ch]
-        phase[:, :, alpha_mom_indices, n_ch:] = m_mult * phase[:, :, alpha_mom_indices, n_ch:]
+        phase[:, :, :, :n_ch] = n_mult * phase[:, :, :, :n_ch]
+        phase[:, :, :, n_ch:] = m_mult * phase[:, :, :, n_ch:]
 
         c = np.real(phase)
         s = np.imag(phase)
@@ -95,13 +100,15 @@ class plvComputation:
 
         n_channels = len(self.babyEpochs.info['ch_names'])
         self.inter_con_alpha = con_alpha[:, 0:n_channels, n_channels: 2*n_channels]
+        
+
 
     def get_plv_theta(self):
         assert self.data[0].shape[0] == self.data[1].shape[0], "Two data streams should have the same number of trials."
         freq_bands = {'theta': [3, 7]}
         complex_signal = []
         # filtering and hilbert transform
-        for freq_band in self.freq_bands.values():
+        for freq_band in freq_bands.values():
             filtered = np.array([mne.filter.filter_data(self.data[participant],
                                                         self.sampling_rate, l_freq=freq_band[0], h_freq=freq_band[1],
                                                         verbose=False)
@@ -135,8 +142,8 @@ class plvComputation:
         theta_baby_indices = np.where((freqsn[0] <= self.freq_bands['Theta-Baby'][1]) & (freqsm[0] >= self.freq_bands['Theta-Baby'][0]))[0]
         theta_mom_indices = np.where((freqsn[0] <= self.freq_bands['Theta-Mom'][1]) & (freqsm[0] >= self.freq_bands['Theta-Mom'][0]))[0]
 
-        phase[:, :, theta_baby_indices, :n_ch] = n_mult * phase[:, :, theta_baby_indices, :n_ch]
-        phase[:, :, theta_mom_indices, n_ch:] = m_mult * phase[:, :, theta_mom_indices, n_ch:]
+        phase[:, :, :, :n_ch] = n_mult * phase[:, :, :, :n_ch]
+        phase[:, :, :, n_ch:] = m_mult * phase[:, :, :, n_ch:]
 
         c = np.real(phase)
         s = np.imag(phase)
@@ -147,10 +154,3 @@ class plvComputation:
         n_channels = len(self.babyEpochs.info['ch_names'])
         self.inter_con_theta = con_theta[:, 0:n_channels, n_channels: 2*n_channels]
         
-
-
-plv = plvComputation(baby.epochs, mom.epochs)
-plv.get_plv_alpha()
-plv.get_plv_theta()
-print(np.mean(plv.inter_con_theta))
-print(np.mean(plv.inter_con_alpha))

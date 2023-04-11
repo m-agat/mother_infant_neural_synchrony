@@ -4,6 +4,7 @@ import re
 
 class DataLoader:
     def __init__(self, path):
+        '''Load dyad data'''
         self.path = path
         self.dyad_data = mne.io.read_raw_edf(self.path, preload = False, stim_channel = 'auto', verbose = False)
         self.infant_data = None
@@ -22,7 +23,7 @@ class DataLoader:
         self.mother_channels = [chan for chan in list(filter(r_m.match, self.dyad_data.info["ch_names"]))]
 
     def separate_files(self):
-        idx = re.findall(r'\d+', str(self.path))[0]
+        idx = re.findall(r'\d+', str(self.path)[14:])[0]
         cond = re.findall('-[0-5]-', str(self.path))[0]
         self.infant_path = f"Infant{idx}_{cond[1]}.fif"
         self.mother_path = f"Mother{idx}_{cond[1]}.fif"
@@ -45,18 +46,18 @@ class Participant:
 
     def subset_channels(self):
         # Define the list of electrode names you want to keep
-        electrodes_to_keep = ['Fp1', 'Fp2', 'F7', 'F8', 'C3', 'C4', 'T7', 'T8', 'P3', 'P4', 'O1', 'O2', 'Fz', 'Cz']
+        electrodes_to_keep = ['F3', 'F4', 'F7', 'F8', 'C3', 'C4', 'T7', 'T8', 'P3', 'P4', 'P7', 'P8']
 
         # Use pick_channels to keep only the desired electrodes
         self.data.pick_channels(electrodes_to_keep)
 
     def get_epochs(self):
         # Define the duration of the epoch (in seconds)
-        epoch_duration = self.data.times[-1] - self.data.times[0]  # Duration of the continuous data
+        epoch_duration = 2 #self.data.times[-1] - self.data.times[0]  # Duration of the continuous data
         # Create the long epoch
         self.epochs = mne.make_fixed_length_epochs(self.data, duration=epoch_duration, preload=True)
         # # Downsample the data to reduce the computation time. 
-        # self.epochs.resample(250)
+        self.epochs.resample(250)
         
     
 class Infant(Participant):
