@@ -6,7 +6,6 @@ from hypyp import analyses
 from copy import copy
 import json
 import re
-import pickle
 
 # local classes
 from load_data import DataLoader
@@ -14,12 +13,14 @@ from load_data import Infant
 from load_data import Mom
 from plv import PLV
 
-# path to the folder with all participants
-dataPath = "/home/u692590/thesis/dyad_data/preprocessed_data"
+'''
+Compute PLVs for all dyads 
+'''
+dataPath = os.path.join(os.getcwd(), "dyad_data/preprocessed_data")
 plv_results = {}
-for participant in sorted(os.listdir(dataPath)):
+for participant in sorted(os.listdir(dataPath)[:1]):
     participantPath = os.path.join(dataPath, participant)
-    participant_idx = re.findall(r'\d+', str(participantPath)[14:])[0]
+    participant_idx = re.findall(r'\d+', str(participantPath))[0]
     stage_dict = {}
     for sfp_stage in sorted(os.listdir(participantPath)):
         sfp_stagePath = os.path.join(participantPath, sfp_stage)
@@ -46,5 +47,3 @@ for participant in sorted(os.listdir(dataPath)):
 
 with open("results.json", "w") as results_file:
     json.dump(plv_results, results_file)
-
-    
