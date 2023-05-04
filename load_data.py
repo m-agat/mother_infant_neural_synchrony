@@ -55,6 +55,7 @@ class Participant:
         # Define the duration of the epoch (in seconds)
         epoch_duration = 2 #self.data.times[-1] - self.data.times[0]  # Duration of the continuous data
         # Create the long epoch
+        self.data.filter(3, 12)
         self.epochs = mne.make_fixed_length_epochs(self.data, duration=epoch_duration, preload=True)
         # # Downsample the data to reduce the computation time. 
         self.epochs.resample(250)
