@@ -43,10 +43,10 @@ class PLV:
 
 
 # path to the folder with all participants
-# dataPath = "/home/u692590/thesis/dyad_data/preprocessed_data"
-# thesisPath = "/home/u692590/thesis"
-dataPath = "/home/agata/Desktop/thesis/dyad_data/preprocessed_data/"
-thesisPath = os.getcwd()
+dataPath = "/home/u692590/thesis/dyad_data/preprocessed_data"
+thesisPath = "/home/u692590/thesis"
+# dataPath = "/home/agata/Desktop/thesis/dyad_data/preprocessed_data/"
+# thesisPath = os.getcwd()
 
 # Define pattern to find mothers' files
 mom_fp1 = [f for f in os.listdir(
@@ -82,68 +82,73 @@ for participant in sorted(os.listdir(dataPath)):
         baby.read_data()
         mom = Mom(dyad.mother_path)
         mom.read_data()
-#         for chan_baby in baby.epochs.info['ch_names']:
-#             if chan_baby not in mom.epochs.info['ch_names']:
-#                 baby.epochs.drop_channels(chan_baby)
-#         for chan_mom in mom.epochs.info['ch_names']:
-#             if chan_mom not in baby.epochs.info['ch_names']:
-#                 mom.epochs.drop_channels(chan_mom)
-#         plv = PLV(baby.epochs, mom.epochs)
-#         plv.get_plv()
-#         # plv_theta = np.mean(np.array(plv.inter_con_theta), axis = 0)
-#         # plv_alpha = np.mean(np.array(plv.inter_con_alpha), axis = 0)
-#         plv_theta = plv.theta_baby
-#         plv_alpha = plv.alpha_baby
+        for chan_baby in baby.epochs.info['ch_names']:
+            if chan_baby not in mom.epochs.info['ch_names']:
+                baby.epochs.drop_channels(chan_baby)
+        for chan_mom in mom.epochs.info['ch_names']:
+            if chan_mom not in baby.epochs.info['ch_names']:
+                mom.epochs.drop_channels(chan_mom)
+        plv = PLV(baby.epochs, mom.epochs)
+        plv.get_plv()
+        # plv_theta = np.mean(np.array(plv.inter_con_theta), axis = 0)
+        # plv_alpha = np.mean(np.array(plv.inter_con_alpha), axis = 0)
+        plv_theta = plv.theta_baby
+        plv_alpha = plv.alpha_baby
 
-#         # placeholders for the counts how many time real PLV > surr PLV
-#         compared_theta = np.zeros_like(plv_theta)
-#         compared_alpha = np.zeros_like(plv_alpha)
-#         n_surrogates = 33
-#         for surr in range(n_surrogates):
-#             # compute surrogate PLVs
-#             mom = Mom(random.choice([file for file in mom_files[i] if file != sfp_stagePath]))
-#             mom.read_data()
-#             mne.epochs.equalize_epoch_counts([baby.epochs, mom.epochs])
-#             surrPLV = PLV(baby.epochs, mom.epochs)
-#             surrPLV.get_plv()
+        # placeholders for the counts how many time real PLV > surr PLV
+        compared_theta = np.zeros_like(plv_theta)
+        compared_alpha = np.zeros_like(plv_alpha)
+        n_surrogates = 1
+        for surr in range(n_surrogates):
+            # compute surrogate PLVs
+            print([file for file in mom_files[i] if file != dyad.mother_path])
+            mom = Mom(random.choice([file for file in mom_files[i] if file != dyad.mother_path]))
+            mom.read_data()
+            mne.epochs.equalize_epoch_counts([baby.epochs, mom.epochs])
+            surrPLV = PLV(baby.epochs, mom.epochs)
+            surrPLV.get_plv()
 
-#             # theta comparison
-#             surr_theta = surrPLV.theta_baby
-#             # get the number of surrogate matrices used to estimate the threshold
-#             num_surr_t = surr_theta.shape[0]
-#             # repeat the surr_theta array along the first axis to match the number of PLV matrices
-#             surr_theta_repeated = np.repeat(surr_theta, num_surr_t // plv_theta.shape[0] + 1, axis=0)[:plv_theta.shape[0]]
-#             mask_theta = plv_theta >= surr_theta_repeated
-#             compared_theta[mask_theta] += 1
+            # theta comparison
+            surr_theta = surrPLV.theta_baby
+           
+            # Calculate the difference in shape between the arrays
+            diff = np.subtract(plv_theta.shape, surr_theta.shape)
 
-#             # alpha comparison
-#             surr_alpha = surrPLV.alpha_baby
-#             # get the number of surrogate matrices used to estimate the threshold
-#             num_surr_a = surr_alpha.shape[0]
-#             # repeat the surr_theta array along the first axis to match the number of PLV matrices
-#             surr_alpha_repeated = np.repeat(surr_alpha, num_surr_a // plv_alpha.shape[0] + 1, axis=0)[:plv_alpha.shape[0]]
-#             mask_alpha = plv_alpha >= surr_alpha_repeated
-#             compared_alpha[mask_alpha] += 1
+            # Pad the second array with zeros to match the shape of the first array
+            surr_theta = np.pad(surr_theta, ((0, diff[0]), (0, diff[1]), (0, diff[2])), mode='constant', constant_values=0)
 
-#         threshold = np.full_like(plv_theta, 0.95*n_surrogates)
-#         mask_t = compared_theta >= threshold
-#         mask_a = compared_alpha >= threshold
-#         plv_theta = np.where(mask_t, plv_theta, np.nan)
-#         plv_alpha = np.where(mask_a, plv_alpha, np.nan)
+            mask_theta = plv_theta >= surr_theta
+            compared_theta[mask_theta] += 1
 
-#         stage_dict_theta[stage] = plv_theta.tolist()
-#         stage_dict_alpha[stage] = plv_alpha.tolist()
-#         nan_per_condition_theta[stage] = np.count_nonzero(np.isnan(np.array(plv_theta)))/(np.count_nonzero(np.isnan(np.array(plv_theta))) + np.count_nonzero(~np.isnan(np.array(plv_theta))))
-#         nan_per_condition_alpha[stage] = np.count_nonzero(np.isnan(np.array(plv_alpha)))/(np.count_nonzero(np.isnan(np.array(plv_alpha))) + np.count_nonzero(~np.isnan(np.array(plv_alpha))))
+            # alpha comparison
+            surr_alpha = surrPLV.alpha_baby
+            # Calculate the difference in shape between the arrays
+            diff = np.subtract(plv_alpha.shape, surr_alpha.shape)
+            # Pad the second array with zeros to match the shape of the first array
+            surr_alpha = np.pad(surr_alpha, ((0, diff[0]), (0, diff[1]), (0, diff[2])), mode='constant', constant_values=0)
 
-#     plv_results_theta[participant_idx] = stage_dict_theta
-#     plv_results_alpha[participant_idx] = stage_dict_alpha
-#     all_nans_theta[participant_idx] = nan_per_condition_theta
-#     all_nans_alpha[participant_idx] = nan_per_condition_alpha
+            mask_alpha = plv_alpha >= surr_alpha
+            compared_alpha[mask_alpha] += 1
+
+        threshold = np.full_like(plv_theta, 0.95*n_surrogates)
+        mask_t = compared_theta >= threshold
+        mask_a = compared_alpha >= threshold
+        plv_theta = np.where(mask_t, plv_theta, np.nan)
+        plv_alpha = np.where(mask_a, plv_alpha, np.nan)
+
+        stage_dict_theta[stage] = plv_theta.tolist()
+        stage_dict_alpha[stage] = plv_alpha.tolist()
+        nan_per_condition_theta[stage] = np.count_nonzero(np.isnan(np.array(plv_theta)))/(np.count_nonzero(np.isnan(np.array(plv_theta))) + np.count_nonzero(~np.isnan(np.array(plv_theta))))
+        nan_per_condition_alpha[stage] = np.count_nonzero(np.isnan(np.array(plv_alpha)))/(np.count_nonzero(np.isnan(np.array(plv_alpha))) + np.count_nonzero(~np.isnan(np.array(plv_alpha))))
+
+    plv_results_theta[participant_idx] = stage_dict_theta
+    plv_results_alpha[participant_idx] = stage_dict_alpha
+    all_nans_theta[participant_idx] = nan_per_condition_theta
+    all_nans_alpha[participant_idx] = nan_per_condition_alpha
 
 
-# with open("results_theta_validated_epochs.json", "w") as results_file:
-#     json.dump(plv_results_theta, results_file)
+with open("results_theta_validated_epochs.json", "w") as results_file:
+    json.dump(plv_results_theta, results_file)
 
-# with open("results_alpha_validated_epochs.json", "w") as results_file:
-#     json.dump(plv_results_alpha, results_file)
+with open("results_alpha_validated_epochs.json", "w") as results_file:
+    json.dump(plv_results_alpha, results_file)
