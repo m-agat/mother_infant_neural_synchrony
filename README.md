@@ -1,5 +1,6 @@
-# Thesis
-
+# The Impact of Smartphone Distraction on Mother-Infant Neural Synchrony During Social Interactions
+## Agata Mosińska - Thesis 2023
+&nbsp;
 # :briefcase: Data Loading
 
 ## **load_data.py**
@@ -131,7 +132,7 @@ This script defines two classes, `PLV` and `pseudoPLV`, which are used to comput
 
 &nbsp;
 
-# Validation & Statistical Analysis
+# :bar_chart: Validation & Statistical Analysis
 
 ## **validation_script.py**
 
