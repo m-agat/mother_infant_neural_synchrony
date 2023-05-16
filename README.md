@@ -1,4 +1,4 @@
-# The Impact of Smartphone Distraction on Mother-Infant Neural Synchrony During Social Interactions
+# The Impact of Smartphone Distraction on Mother-Infant Neural Synchrony During Social Interactions :woman_feeding_baby::brain:
 ## Agata Mosińska - Thesis 2023
 &nbsp;
 # :briefcase: Data Loading
@@ -224,3 +224,22 @@ This notebook performs a statistical analysis on the modified Still Face Paradig
 8. The process is repeated for the theta band (3-5 Hz) analysis using a different JSON file named 'results_theta_plv.json'.
 
 9. Descriptive statistics are calculated for the theta band data, and the results are stored in a pandas DataFrame named `descriptives_df` and exported to a LaTeX file named 'synchrony_descriptives_theta.tex'.
+
+&nbsp;
+# :memo: Other
+## missing_channels.py
+This code is a script that provides a summary of missing channels for each participant. 
+
+1. Imports necessary libraries and modules, including `os`, `mne`, `numpy`, `scipy.signal`, `hypyp.analyses`, `copy`, `json`, and `pandas`.
+2. Imports local classes from `load_data.py` and `plv.py`, including `DataLoader`, `Infant`, `Mom`, and `PLV`.
+3. Defines the path to the folder containing preprocessed data for all participants.
+4. Initializes empty dictionaries `plv_results` and `missing_channels`.
+5. Loops through each participant in the data folder:
+   - Constructs the path to the participant's data folder.
+   - Extracts the participant index from the folder name.
+   - Identifies the specific stage of the Still Face Paradigm (SFP) from the folder name.
+   - Initializes instances of the `DataLoader`, `Infant`, and `Mom` classes.
+   - Reads the data for the participant.
+   - Checks for missing channels between the infant and mother data and records them in the `missing_channels` dictionary.
+6. Constructs a pandas DataFrame (`missing_channels_df`) using the `missing_channels` dictionary.
+7. Prints the DataFrame, displaying the missing channels for each participant.
