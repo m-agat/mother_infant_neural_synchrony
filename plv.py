@@ -10,22 +10,6 @@ from hypyp import analyses
 from hypyp import utils
 from copy import copy
 
-# # path to the folder with all participants
-# dataPath = os.path.join(os.getcwd(), "dyad_data/preprocessed_data")
-# allDyadsDir = os.listdir(dataPath)  # folder with all participants
-# dyadPath = os.path.join(dataPath, allDyadsDir[0])
-# dyadDir = sorted(os.listdir(dyadPath))
-# stagePath = os.path.join(dyadPath, dyadDir[4])
-
-# dyad = DataLoader(stagePath)
-# dyad.read_data()
-
-# baby = Infant("Infant036_1.fif")
-# baby.read_data()
-
-# mom = Mom("Mother036_1.fif")
-# mom.read_data()
-
 
 class PLV:
     def __init__(self, baby_epochs, mom_epochs):
@@ -43,6 +27,9 @@ class PLV:
 
 
     def get_plv(self):
+        '''
+        Method calculating the single frequency PLV 
+        '''
         complex_signal = analyses.compute_freq_bands(self.data, self.sampling_rate, self.freq_bands)
         self.plv = analyses.compute_sync(complex_signal, mode='plv', epochs_average=False)
         n_ch = len(self.babyEpochs.info['ch_names'])
@@ -50,6 +37,9 @@ class PLV:
 
     
     def get_plv_alpha(self):
+        '''
+        Method calculating the cross-frequency alpha PLV
+        '''
         # Define frequency bands
         assert self.data[0].shape[0] == self.data[1].shape[0], "Two data streams should have the same number of trials."
         freq_bands = {'alpha': [6, 12]}
@@ -99,6 +89,9 @@ class PLV:
 
 
     def get_plv_theta(self):
+        '''
+        Method calculating the cross-frequency theta PLV 
+        '''
         assert self.data[0].shape[0] == self.data[1].shape[0], "Two data streams should have the same number of trials."
         freq_bands = {'theta': [3, 7]}
         complex_signal = []
@@ -164,13 +157,34 @@ class pseudoPLV:
 
 
     def get_plv(self):
-        complex_signal = analyses.compute_freq_bands(self.data, self.sampling_rate, self.freq_bands)
-        self.plv = analyses.compute_sync(complex_signal, mode='plv')
+        '''
+        Method calculating the single frequency PLV with shuffling of the Hilbert transform
+        '''
+        # filtering and hilbert transform
+        complex_signal = []
+        for freq_band in self.freq_bands.values():
+            filtered = np.array([mne.filter.filter_data(self.data[participant],
+                                                        self.sampling_rate, l_freq=freq_band[0], h_freq=freq_band[1],
+                                                        verbose=False)
+                                for participant in range(2)
+                                # for each participant
+                                ])
+            hilb = np.angle(sig.hilbert(filtered))
+            np.take(hilb,np.random.permutation(hilb.shape[1]),axis=1,out=hilb)
+            complex_signal.append(hilb)
+
+        complex_signal = np.moveaxis(np.array(complex_signal), [0], [3])
+
+        # complex_signal = analyses.compute_freq_bands(self.data, self.sampling_rate, self.freq_bands)
+        self.plv = analyses.compute_sync(complex_signal, mode='plv', epochs_average=False)
         n_ch = len(self.babyEpochs.info['ch_names'])
         self.theta_baby, self.theta_mom, self.alpha_baby, self.alpha_mom = self.plv[:, 0:n_ch, n_ch:2*n_ch]
 
     
     def get_plv_alpha(self):
+        '''
+        Method calculating the cross-frequency alpha PLV with shuffling of the Hilbert transform
+        '''
         # Define frequency bands
         assert self.data[0].shape[0] == self.data[1].shape[0], "Two data streams should have the same number of trials."
         freq_bands = {'alpha': [6, 12]}
@@ -221,6 +235,9 @@ class pseudoPLV:
 
 
     def get_plv_theta(self):
+        '''
+        Method calculating the cross-frequency theta PLV with shuffling of the Hilbert transform
+        '''
         assert self.data[0].shape[0] == self.data[1].shape[0], "Two data streams should have the same number of trials."
         freq_bands = {'theta': [3, 7]}
         complex_signal = []
