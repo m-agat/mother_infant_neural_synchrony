@@ -1,10 +1,10 @@
 # Thesis
 
-# Data Loading
+# :briefcase: Data Loading
 
 ## **load_data.py**
 
-### DataLoader - Methods
+### :file_folder: DataLoader 
 
 This class is used to load dyad data. It provides methods for identifying the person (infant or mother), separating the data into individual files, and reading the data.
 
@@ -28,7 +28,7 @@ Identifies the person and separates the data into individual files.
 
 ---
 
-### Participant 
+### :superhero_woman: Participant 
 
 This class represents a participant (infant or mother). It provides methods for setting the montage, subsetting channels, and obtaining epochs.
 
@@ -53,7 +53,7 @@ Creates epochs from the participant's data with a fixed length of `epoch_duratio
 
 ---
 
-### Infant (inherits from Participant) - Methods
+### :baby: Infant (inherits from Participant) 
 
 This class represents an infant participant. It inherits from the Participant class and provides additional methods specific to infants.
 
@@ -73,7 +73,7 @@ Renames channels, sets the montage, subsets channels, and obtains epochs for the
 
 ---
 
-### Mom (inherits from Participant) - Methods
+### :woman_feeding_baby: Mom (inherits from Participant) 
 
 This class represents a mother participant. It inherits from the Participant class and provides additional methods specific to mothers.
 
@@ -93,7 +93,7 @@ Renames channels, sets the montage, subsets channels, and obtains epochs for the
 
 &nbsp;
 
-# PLV Calculation
+# :nerd_face: PLV Calculation
 
 ## **plv.py**
 
@@ -111,7 +111,7 @@ This script defines two classes, `PLV` and `pseudoPLV`, which are used to comput
 
 ### Classes
 
-#### `PLV`
+#### :triangular_ruler:`PLV`
 
 - Description: Computes PLV for one dyad.
 - Methods:
@@ -120,7 +120,7 @@ This script defines two classes, `PLV` and `pseudoPLV`, which are used to comput
     - `get_plv_alpha(self)`: Calculates cross-frequency alpha PLV.
     - `get_plv_theta(self)`: Calculates cross-frequency theta PLV.
 
-#### `pseudoPLV`
+#### :straight_ruler: `pseudoPLV`
 
 - Description: Computes PLV for one dyad with shuffling of the Hilbert transform.
 - Methods:
