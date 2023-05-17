@@ -39,6 +39,7 @@ class PLV:
     def get_plv_alpha(self):
         '''
         Method calculating the cross-frequency alpha PLV
+        This code was adapted from the code HyPyP library
         '''
         # Define frequency bands
         assert self.data[0].shape[0] == self.data[1].shape[0], "Two data streams should have the same number of trials."
@@ -91,6 +92,7 @@ class PLV:
     def get_plv_theta(self):
         '''
         Method calculating the cross-frequency theta PLV 
+        This code was adapted from the code HyPyP library
         '''
         assert self.data[0].shape[0] == self.data[1].shape[0], "Two data streams should have the same number of trials."
         freq_bands = {'theta': [3, 7]}
@@ -184,6 +186,7 @@ class pseudoPLV:
     def get_plv_alpha(self):
         '''
         Method calculating the cross-frequency alpha PLV with shuffling of the Hilbert transform
+        This code was adapted from the code HyPyP library
         '''
         # Define frequency bands
         assert self.data[0].shape[0] == self.data[1].shape[0], "Two data streams should have the same number of trials."
@@ -237,6 +240,7 @@ class pseudoPLV:
     def get_plv_theta(self):
         '''
         Method calculating the cross-frequency theta PLV with shuffling of the Hilbert transform
+        This code was adapted from the code HyPyP library
         '''
         assert self.data[0].shape[0] == self.data[1].shape[0], "Two data streams should have the same number of trials."
         freq_bands = {'theta': [3, 7]}
