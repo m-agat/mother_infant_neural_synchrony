@@ -242,4 +242,3 @@ This code is a script that provides a summary of missing channels for each parti
    - Reads the data for the participant.
    - Checks for missing channels between the infant and mother data and records them in the `missing_channels` dictionary.
 6. Constructs a pandas DataFrame (`missing_channels_df`) using the `missing_channels` dictionary.
-7. Prints the DataFrame, displaying the missing channels for each participant.
