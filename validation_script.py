@@ -111,4 +111,6 @@ def validate_synchrony(dataPath, mode):
 gpu_path = "/home/u692590/thesis/dyad_data/preprocessed_data"
 # local_path = "/home/agata/Desktop/thesis/dyad_data/preprocessed_data/"
 
+validate_synchrony(dataPath=gpu_path, mode="plv")
 validate_synchrony(dataPath=gpu_path, mode="pli")
+validate_synchrony(dataPath=gpu_path, mode="wpli")
