@@ -1,5 +1,5 @@
 from load_data import DataLoader, Infant, Mom
-from plv import connectivityMeasure, pseudoConnectivityMeasure
+from connectivity_measures import connectivityMeasure, pseudoConnectivityMeasure
 import os
 import mne
 import numpy as np

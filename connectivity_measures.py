@@ -95,3 +95,5 @@ class pseudoConnectivityMeasure:
 
         n_ch = len(self.babyEpochs.info['ch_names'])
         self.theta_baby, self.theta_mom, self.alpha_baby, self.alpha_mom = sync_data[:, 0:n_ch, n_ch:2*n_ch]
+
+        
