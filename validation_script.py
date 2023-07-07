@@ -57,7 +57,7 @@ def validate_synchrony(dataPath, mode):
             compared_alpha = np.zeros_like(connectivity_alpha)
 
             # Calculate surrogate connectivity measures
-            n_surrogates = 1
+            n_surrogates = 200
             for surr in range(n_surrogates):
                 # compute surrogate connectivity measures 
                 surr_connectivity = pseudoConnectivityMeasure(baby.epochs, mom.epochs, mode)
