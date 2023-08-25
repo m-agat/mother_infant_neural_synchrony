@@ -1,12 +1,9 @@
 from load_data import DataLoader, Infant, Mom
 from connectivity_measures import connectivityMeasure, pseudoConnectivityMeasure
 import os
-import mne
 import numpy as np
-import scipy.signal as sig
 import json
 import re
-from copy import copy
 
 
 def validate_synchrony(dataPath, mode):
@@ -20,8 +17,8 @@ def validate_synchrony(dataPath, mode):
         participantPath = os.path.join(dataPath, participant)
         participant_idx = re.findall(r'\d+', str(participantPath)[14:])[0]
 
-        stage_dict_theta_all = {} # vaildated results for theta frequency at each stage
-        stage_dict_alpha_all = {} #  validated results for alpha frequency at each stage
+        stage_dict_theta_all = {} # non-vaildated results for theta frequency at each stage
+        stage_dict_alpha_all = {} #  non-validated results for alpha frequency at each stage
         stage_dict_theta = {} # vaildated results for theta frequency at each stage
         stage_dict_alpha = {} #  validated results for alpha frequency at each stage
 
