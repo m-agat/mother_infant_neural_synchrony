@@ -136,93 +136,143 @@ This script defines two classes, connectivityMeasure and pseudoConnectivityMeasu
 
 ## **validation_script.py**
 
-This code performs a Phase Locking Value (PLV) analysis on preprocessed data of infant-mother pairs. It calculates PLV values for theta and alpha frequency bands and compares them to surrogate PLV values. The results are stored in JSON files.
-
-### Usage
-
-1. Import the required modules and classes: `load_data`, `Infant`, `Mom`, `PLV`, `pseudoPLV`, `os`, `mne`, `numpy`, `scipy.signal`, `json`, and `re`.
-
-2. Set the `dataPath` variable to the path of the folder containing the preprocessed data for all participants.
-
-3. Create empty dictionaries `plv_results_theta` and `plv_results_alpha` to store the PLV results for theta and alpha bands, respectively.
-
-4. Iterate over each participant in the `dataPath` folder.
-
-5. For each participant, retrieve the participant's path and extract the participant index.
-
-6. Create empty dictionaries `stage_dict_theta` and `stage_dict_alpha` to store the PLV results for each stage in the theta and alpha bands, respectively.
-
-7. Iterate over each stage folder for the current participant.
-
-8. For each stage, retrieve the stage's path and extract the stage number.
-
-9. Load the data for the infant and mother using the `DataLoader`, `Infant`, and `Mom` classes.
-
-10. Drop channels from the infant and mother data that are not present in both datasets.
-
-11. Calculate the PLV values for the theta and alpha bands using the `PLV` class.
-
-12. Initialize placeholders for counting how many times the real PLV values exceed surrogate PLV values.
-
-13. Perform a loop to generate surrogate PLV values and compare them to the real PLV values.
-
-14. Within each iteration of the surrogate loop, compare the theta and alpha PLV values to the surrogate values.
-
-15. Update the count matrices for theta and alpha based on the comparison results.
-
-16. Calculate a threshold based on the number of surrogates.
-
-17. Apply the threshold to create masks for theta and alpha PLV values.
-
-18. Replace values in the PLV matrices with NaN where the masks are False.
-
-19. Store the PLV results for the current stage in the corresponding stage dictionaries.
-
-20. Store the stage dictionaries for theta and alpha PLV results in the participant's dictionaries.
-
-21. Serialize the theta PLV results dictionary into a JSON file named "results_theta_plv.json".
-
-22. Serialize the alpha PLV results dictionary into a JSON file named "results_alpha_plv.json".
+This script processes EEG data to validate synchrony using different connectivity measures. It calculates and validates the functional connectivity measures (PLV, PLI, and wPLI) between infant and mother EEG data at different stages and frequency bands.
 
 ### Dependencies
+- load_data module (importing DataLoader, Infant, and Mom classes)
+- connectivity_measures module (importing connectivityMeasure and pseudoConnectivityMeasure classes)
+- os
+- numpy (as np)
+- json
+- re
 
-- The code relies on the `load_data` module, which provides the `DataLoader`, `Infant`, and `Mom` classes.
-- Other dependencies include `mne`, `numpy`, `scipy.signal`, `json`, and `re`.
-
-### Results
-
-- The PLV results for theta and alpha frequency bands are stored in separate JSON files: "results_theta_plv.json" and "results_alpha_plv.json", respectively.
-- The JSON files contain nested dictionaries with the following structure:
-  - Participant index (e.g., "participant_1"):
-    - Stage number (e.g., "stage_1"):
-      - PLV values for theta band (list of matrices)
-      - PLV values for alpha band (list of matrices)
+### Functions
+#### :white_check_mark: validate_synchrony(dataPath, mode)
+- Description: Validates synchrony between infant and mother EEG data using different connectivity measures.
+- Parameters:
+    - dataPath (str): Path to the folder containing data for all participants.
+    - mode (str): The connectivity measure mode ('plv', 'pli', or 'wpli').
+    - Returns: None
 
 ### Note
-
 - Make sure to adjust the `dataPath` variable to the correct path of the folder containing the preprocessed data.
 
 &nbsp;
 
 # Statistical Analysis
 
-## **statistical_analysis.ipynb**
-This notebook performs a statistical analysis on the modified Still Face Paradigm conditions:
+## **statistical_analysis.py**
+This script performs statistical analysis and visualization of EEG synchrony data along with questionnaire data related to postpartum depression and anxiety.
 
-1. The notebook imports necessary libraries for statistical analysis, including `json`, `numpy`, `matplotlib.pyplot`, `scipy.stats`, `hypyp.stats`, `seaborn`, `statannot`, `scikit_posthocs`, and `pandas`.
+### Dependencies
+- json
+- numpy (as np)
+- scipy.stats (as stats)
+- pandas (as pd)
+- OrderedSet from ordered_set
+- csv
+- pingouin (as pg)
+- shapiro from scipy.stats
+- matplotlib.pyplot (as plt)
+- os
+- pyreadstat
+- seaborn (as sns)
+- LinearRegression from sklearn.linear_model
+- f_regression from sklearn.feature_selection
+- MinMaxScaler from sklearn.preprocessing
+- variance_inflation_factor from statsmodels.stats.outliers_influence
+- add_constant from statsmodels.tools.tools
+- scikit_posthocs (as sp)
 
-2. The notebook loads data from a JSON file named 'results_alpha_plv.json' and extracts specific data for different conditions of the Still Face Paradigm. The extracted data is stored in separate lists for each condition.
+### Functions
+#### :open_file_folder: load_data(file_path)
+- Description: Loads neural synchrony data from a JSON file.
+- Parameters:
+    - file_path (str): Path to the JSON file containing synchrony data.
+    - Returns: Tuple containing participant indices and a list of numpy arrays for different SFP stages.
+      
+#### :floppy_disk: create_csv(data_array, participant_indices, filename, folder=None)
+- Description: Creates a CSV file from the given data array.
+- Parameters:
+    - data_array (list): List of numpy arrays containing synchrony data for different stages.
+    - participant_indices (numpy.array): Participant indices.
+    - filename (str): Name of the output CSV file.
+    - folder (str, optional): Folder path to save the CSV file.
+    - Returns: None
+#### :bar_chart: descriptive_analysis(data_array, folder=None)
+- Description: Performs descriptive analysis on the data and generates a LaTeX table.
+- Parameters:
+    - data_array (list): List of numpy arrays containing synchrony data for different stages.
+    - folder (str, optional): Folder path to save the LaTeX table.
+    - Returns: DataFrame containing descriptives.
+#### :arrow_right_hook: prepare_data_frame(data_array)
+- Description: Prepares a DataFrame from the given data array.
+- Parameters:
+    - data_array (list): List of numpy arrays containing synchrony data for different stages.
+    - Returns: Melted DataFrame with columns "id", "Condition", and "Synchrony".
+#### :heavy_check_mark: test_normality(df_melted)
+- Description: Performs the Shapiro-Wilk normality test on the data.
+- Parameters:
+    - df_melted (DataFrame): Melted DataFrame with columns "id", "Condition", and "Synchrony".
+    - Returns: None
+#### :chart_with_upwards_trend: fisher_z_transform(data_array)
+- Description: Performs Fisher z-transform on the data and tests normality.
+- Parameters:
+    - data_array (list): List of numpy arrays containing synchrony data for different stages.
+    - Returns: None
+#### :bar_chart: visualize_results(df_melted, frequency, method, x_col_label, y_col_label, title, x_tick_labels, save_filename, save_folder=None)
+- Description: Creates and saves a boxplot visualization of results.
+- Parameters:
+    - df_melted (DataFrame): Melted DataFrame with columns "id", "Condition", and "Synchrony".
+    - frequency (str): Frequency band (e.g., "Theta").
+    - method (str): Connectivity measure (e.g., "PLI").
+    - x_col_label (str): Label for the x-axis column.
+    - y_col_label (str): Label for the y-axis column.
+    - title (str): Title for the plot.
+    - x_tick_labels (list): Labels for x-axis ticks.
+    - save_filename (str): Name of the file to save the plot.
+    - save_folder (str, optional): Folder path to save the plot.
+    - Returns: None
+#### :bar_chart: linear_regression_analysis(questionnaire_data_path, synchrony_data_path, frequency='Theta', connectivity_measure='PLI')
+- Description: Performs linear regression analysis and scatterplot visualization.
+- Parameters:
+    - questionnaire_data_path (str): Path to the questionnaire data file.
+    - synchrony_data_path (str): Path to the synchrony data file.
+    - frequency (str, optional): Frequency band (default: "Theta").
+    - connectivity_measure (str, optional): Connectivity measure (default: "PLI").
+    - Returns: None
 
-3. Descriptive statistics are calculated for each condition, including mean, standard deviation, minimum, and maximum values. The results are stored in a pandas DataFrame named `descriptives_df` and exported to a LaTeX file named 'synchrony_descriptives_alpha.tex'.
+## ** topographical_analysis.py**
 
-4. The normality of the data distribution is tested using the Shapiro-Wilk test. The test is performed on the synchronized data values.
+This script performs tomographical analysis on EEG data, including averaging epochs and visualizing connectivity.
 
-5. The Fisher z-transform is applied to the synchronized data values.
+### Dependencies
+- DataLoader, Infant, Mom from load_data
+- os
+- mne
+- numpy (as np)
+- json
+- re
+- pickle
+- pandas (as pd)
+- seaborn (as sns)
+- matplotlib.pyplot (as plt)
+- viz from hypyp
 
-6. The Friedman test is conducted to analyze the main effect and determine if there are significant differences between the population means of the conditions.
-
-7. Post hoc analysis is performed using the Wilcoxon signed-rank test to compare the conditions pairwise. The results are displayed in a boxplot with significance annotations.
-
-8. The process is repeated for the theta band (3-5 Hz) analysis using a different JSON file named 'results_theta_plv.json'.
-
-9. Descriptive statistics are calculated for the theta band data, and the results are stored in a pandas DataFrame named `descriptives_df` and exported to a LaTeX file named 'synchrony_descriptives_theta.tex'.
+### Functions
+#### :chart_with_upwards_trend: average_epochs(dataPath)
+- Description: Averages epochs for infant and mother EEG data across different stages.
+- Parameters:
+    - dataPath (str): Path to the directory containing EEG data.
+    - Returns: A tuple containing averaged mother epochs data and averaged infant epochs data.
+      
+#### :bar_chart: visualize_connectivity(results_path, mom_epochs_path, baby_epochs_path, ch_names, sfreq, threshold)
+- Description: Visualizes connectivity using heatmaps and topographic maps.
+- Parameters:
+    - results_path (str): Path to the JSON file containing connectivity results.
+    - mom_epochs_path (str): Path to the pickled file containing averaged mother epochs data.
+    - baby_epochs_path (str): Path to the pickled file containing averaged infant epochs data.
+    - ch_names (list): List of channel names.
+    - sfreq (int): Sampling frequency of the EEG data.
+    - threshold (float): Threshold for topographic map visualization.
+    - Returns: None
