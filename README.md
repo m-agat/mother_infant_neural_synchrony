@@ -1,7 +1,18 @@
 # The Impact of Smartphone Distraction on Mother-Infant Neural Synchrony During Social Interactions :woman_feeding_baby::brain:
 ## Agata Mosińska - Thesis 2023
+
+### Abstract 
+While there is ample behavioral evidence highlighting the negative effects of maternal smartphone distraction, our understanding of the underlying neurobiological mechanisms remains limited. The present study aimed to bridge this gap by exploring the effects of smartphone distraction on mother-infant brain-to-brain synchrony, a key factor in promoting healthy socio-emotional development in infants. The findings revealed that smartphone distraction during an interaction between mothers and their infants disrupts the mother-infant synchronization of brain oscillations. These results provide valuable neurobiological evidence, further emphasizing the detrimental impact of maternal smartphone use on mother-infant interactions. By shedding light on the underlying neurobiological processes, this study contributes to a more comprehensive understanding of the consequences of smartphone distraction on parent-infant relationship.
+
 &nbsp;
-# :briefcase: Data Loading
+## Table of contents 
+- [Data Loading](#data-loading)
+- [Connectivity Measures](#connectivity-measures)
+- [Validation](#validation)
+- [Statistical Analysis](#statistical-analysis)
+
+&nbsp;
+# Data Loading 
 
 ## **load_data.py**
 
@@ -94,45 +105,34 @@ Renames channels, sets the montage, subsets channels, and obtains epochs for the
 
 &nbsp;
 
-# :nerd_face: PLV Calculation
+# Connectivity Measures 
 
-## **plv.py**
+## **connectivity_measures.py**
 
-This script defines two classes, `PLV` and `pseudoPLV`, which are used to compute phase locking value (PLV) for EEG data. The `PLV` class calculates PLV for a given dyad, while the `pseudoPLV` class calculates PLV with shuffling of the Hilbert transform.
+This script defines two classes, connectivityMeasure and pseudoConnectivityMeasure, which are used to compute different functional connectivity measures for EEG data. The connectivityMeasure class calculates connectivity measures for a given dyad, while the pseudoConnectivityMeasure class calculates connectivity measures with shuffling of the Hilbert transform.
 
 ### Dependencies
-
-- os
-- json
 - mne
 - numpy (as np)
 - scipy.signal (as sig)
-- load_data module (importing `DataLoader`, `Infant`, and `Mom` classes)
-- hypyp module (importing `analyses` and `utils`)
+- hypyp module (importing analyses)
 
 ### Classes
-
-#### :triangular_ruler:`PLV`
-
-- Description: Computes PLV for one dyad.
+#### :triangular_ruler:connectivityMeasure
+- Description: Computes a functional connectivity measure for one dyad.
 - Methods:
-    - `__init__(self, baby_epochs, mom_epochs)`: Initializes the `PLV` object.
-    - `get_plv(self)`: Calculates single-frequency PLV.
-    - `get_plv_alpha(self)`: Calculates cross-frequency alpha PLV.
-    - `get_plv_theta(self)`: Calculates cross-frequency theta PLV.
+    - __init__(self, baby_epochs, mom_epochs, mode): Initializes the connectivityMeasure object.
+    - calculate_sync(self): Calculates the specified connectivity measure for different frequency bands.
 
-#### :straight_ruler: `pseudoPLV`
-
-- Description: Computes PLV for one dyad with shuffling of the Hilbert transform.
+#### :straight_ruler: pseudoConnectivityMeasure
+- Description: Computes a connectivity measure for one dyad with shuffling of the Hilbert transform.
 - Methods:
-    - `__init__(self, baby_epochs, mom_epochs)`: Initializes the `pseudoPLV` object.
-    - `get_plv(self)`: Calculates single-frequency PLV with shuffling of the Hilbert transform.
-    - `get_plv_alpha(self)`: Calculates cross-frequency alpha PLV with shuffling of the Hilbert transform.
-    - `get_plv_theta(self)`: Calculates cross-frequency theta PLV with shuffling of the Hilbert transform.
+    - __init__(self, baby_epochs, mom_epochs, mode): Initializes the pseudoConnectivityMeasure object.
+    - calculate_surrogate_sync(self): Calculates the specified connectivity measure with shuffling of the Hilbert transform.
 
 &nbsp;
 
-# :bar_chart: Validation & Statistical Analysis
+# Validation 
 
 ## **validation_script.py**
 
@@ -204,6 +204,8 @@ This code performs a Phase Locking Value (PLV) analysis on preprocessed data of 
 
 &nbsp;
 
+# Statistical Analysis
+
 ## **statistical_analysis.ipynb**
 This notebook performs a statistical analysis on the modified Still Face Paradigm conditions:
 
@@ -224,21 +226,3 @@ This notebook performs a statistical analysis on the modified Still Face Paradig
 8. The process is repeated for the theta band (3-5 Hz) analysis using a different JSON file named 'results_theta_plv.json'.
 
 9. Descriptive statistics are calculated for the theta band data, and the results are stored in a pandas DataFrame named `descriptives_df` and exported to a LaTeX file named 'synchrony_descriptives_theta.tex'.
-
-&nbsp;
-# :memo: Other
-## missing_channels.py
-This code is a script that provides a summary of missing channels for each participant. 
-
-1. Imports necessary libraries and modules, including `os`, `mne`, `numpy`, `scipy.signal`, `hypyp.analyses`, `copy`, `json`, and `pandas`.
-2. Imports local classes from `load_data.py` and `plv.py`, including `DataLoader`, `Infant`, `Mom`, and `PLV`.
-3. Defines the path to the folder containing preprocessed data for all participants.
-4. Initializes empty dictionaries `plv_results` and `missing_channels`.
-5. Loops through each participant in the data folder:
-   - Constructs the path to the participant's data folder.
-   - Extracts the participant index from the folder name.
-   - Identifies the specific stage of the Still Face Paradigm (SFP) from the folder name.
-   - Initializes instances of the `DataLoader`, `Infant`, and `Mom` classes.
-   - Reads the data for the participant.
-   - Checks for missing channels between the infant and mother data and records them in the `missing_channels` dictionary.
-6. Constructs a pandas DataFrame (`missing_channels_df`) using the `missing_channels` dictionary.
