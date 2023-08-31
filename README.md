@@ -2,7 +2,13 @@
 ## Agata Mosińska - Thesis 2023
 
 ### Abstract 
-While there is ample behavioral evidence highlighting the negative effects of maternal smartphone distraction, our understanding of the underlying neurobiological mechanisms remains limited. The present study aimed to bridge this gap by exploring the effects of smartphone distraction on mother-infant brain-to-brain synchrony, a key factor in promoting healthy socio-emotional development in infants. The findings revealed that smartphone distraction during an interaction between mothers and their infants disrupts the mother-infant synchronization of brain oscillations. These results provide valuable neurobiological evidence, further emphasizing the detrimental impact of maternal smartphone use on mother-infant interactions. By shedding light on the underlying neurobiological processes, this study contributes to a more comprehensive understanding of the consequences of smartphone distraction on parent-infant relationship.
+Face-to-face interactions between mothers and infants are crucial for infant development, however, these days, they are often disrupted by mother's smartphone distraction. This study aimed to investigate the effects of maternal smartphone distraction on mother-infant brain-to-brain synchrony. Thirty-three mother-infant pairs participated in a modified Still Face Paradigm, incorporating smartphone distraction. Dual-EEG was employed to measure mother-infant neural synchrony which was subsequently quantified using phase locking value analysis.
+
+The analysis focused on the alpha and theta frequency bands, known for their role in social interactions. Results revealed that the Still Face Paradigm disrupted mother-infant synchrony in the theta frequency band, while no notable differences between conditions were found in the alpha band. These findings align with previous research emphasizing the theta band's sensitivity to the disruption of interaction compared to the alpha band.
+
+The study found no evidence of the experiment's progression impacting neural synchrony, contradicting prior research. This suggests that mother-infant synchrony can be restored when the mother re-engages in the interaction. 
+
+Overall, the findings underline the importance of minimizing technological distractions to promote healthy neural synchrony and foster positive mother-infant relationships.
 
 &nbsp;
 ## Table of contents 
