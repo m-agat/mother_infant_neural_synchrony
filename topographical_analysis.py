@@ -9,6 +9,9 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from hypyp import viz
+from scipy import stats
+import statsmodels.api as sm
+from statsmodels.stats import multitest
 
 
 def average_epochs(dataPath):
@@ -224,9 +227,122 @@ def visualize_connectivity(results_path, mom_epochs_path, baby_epochs_path, ch_n
                 epochs_mom, epochs_baby, mean_connectivity, threshold=threshold, lab=True)
 
 
-# local_path = "/home/agata/Desktop/thesis/dyad_data/preprocessed_data/"
-# gpu_path = "/home/u692590/thesis/dyad_data/preprocessed_data"
+def visualize_difference(results_path, mom_epochs_path, baby_epochs_path, ch_names, sfreq, alpha):
+    # Load data from JSON file
+    with open(results_path) as f:
+        results_theta = json.load(f)
 
-# mom_epochs_data, baby_epochs_data = average_epochs(dataPath=gpu_path)
+    # Initialize empty lists for different stages
+    fp1 = []
+    sf1 = []
+    fp2 = []
+    sf2 = []
+    ru = []
 
-# print(np.array(mom_epochs_data).shape)
+    # Populate the stage-specific lists
+    for part, stages in results_theta.items():
+        if part == '623' or part == '802':
+            continue
+        else:
+            for stage, data in stages.items():
+                stage = int(stage[1]) - 1
+                if stage == 0:
+                    fp1.append(data)
+                if stage == 1:
+                    sf1.append(data)
+                if stage == 2:
+                    fp2.append(data)
+                if stage == 3:
+                    if np.array(data).shape != (12, 12, 24):  # one array has shape (6, 12, 24)
+                        continue
+                    else:
+                        sf2.append(data)
+                if stage == 4:
+                    ru.append(data)
+
+    # Convert lists to numpy arrays
+    fp1 = np.array(fp1)
+    sf1 = np.array(sf1)
+    fp2 = np.array(fp2)
+    sf2 = np.array(sf2)
+    ru = np.array(ru)
+
+    '''
+    Only last 4 phases
+    '''
+
+    # Combine sf1 and sf2
+    sf_combined = np.concatenate((sf1, sf2), axis=0)
+    mean_sf_combined = np.nanmean(sf_combined, axis=3)
+
+    # Combine fp1, fp2, and ru
+    fp_combined = np.concatenate((fp2, ru), axis=0)
+    mean_fp_combined = np.nanmean(fp_combined, axis=3)
+
+    min_samples = min(mean_fp_combined.shape[0], mean_sf_combined.shape[0])
+
+    with open(mom_epochs_path, "rb") as pickle_file:
+        mom_epochs = pickle.load(pickle_file)
+
+    with open(baby_epochs_path, "rb") as pickle_file:
+        baby_epochs = pickle.load(pickle_file)
+
+    info = mne.create_info(ch_names, sfreq, ch_types='eeg')
+    info.set_montage('biosemi64')
+
+    epochs_mom = mne.EpochsArray(mom_epochs[0], info)
+    epochs_baby = mne.EpochsArray(baby_epochs[0], info)
+
+    p_values = np.empty((len(ch_names), len(ch_names)))
+    for el1 in range(len(ch_names)):
+        for el2 in range(len(ch_names)):
+            t_stat, p_value = stats.ttest_rel(
+                mean_sf_combined[:min_samples, el1, el2], mean_fp_combined[:min_samples, el1, el2], alternative='less', nan_policy='omit')
+            p_values[el1, el2] = p_value
+
+    reject, corrected_p_values, _, _ = multitest.multipletests(p_values.flatten(), alpha=alpha, method='fdr_bh')
+    corrected_p_values = corrected_p_values.reshape(p_values.shape)
+    print('Significant differences for the last 4 phases')
+    print(corrected_p_values[corrected_p_values < alpha])
+    p_values_inverted = 1 - p_values
+    
+    viz.viz_2D_topomap_inter(
+        epochs_mom, epochs_baby, p_values_inverted, threshold=1-alpha, lab=True)
+    
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(p_values, annot=True, fmt=".2f",
+                cmap="coolwarm", xticklabels=ch_names, yticklabels=ch_names)
+    plt.title(f"Significant Differences in Connectivity between Electrodes between SF and FP Conditions")
+    plt.xlabel("Infant Electrode")
+    plt.ylabel("Mother Electrode")
+    plt.show()
+
+    '''
+    Mean values per electrode 
+    '''
+
+    #Combine sf1 and sf2
+    sf_combined = np.concatenate((sf1, sf2), axis=0)
+    mean_sf_combined = np.nanmean(sf_combined, axis=(0,3))
+
+    # Combine fp1, fp2, and ru
+    fp_combined = np.concatenate((fp1, fp2, ru), axis=0)
+    mean_fp_combined = np.nanmean(fp_combined, axis=(0,3))
+
+    min_samples = min(mean_fp_combined.shape[0], mean_sf_combined.shape[0])
+
+    epochs_mom = mne.EpochsArray(mom_epochs[0], info)
+    epochs_baby = mne.EpochsArray(baby_epochs[0], info)
+
+    p_values = np.empty((len(ch_names), len(ch_names)))
+    for el1 in range(len(ch_names)):
+        for el2 in range(len(ch_names)):
+            t_stat, p_value = stats.wilcoxon(
+                mean_sf_combined[el1, el2], mean_fp_combined[el1, el2], alternative='less', nan_policy='omit')
+            p_values[el1, el2] = p_value
+
+    alpha = 0.05
+    reject, corrected_p_values, _, _ = multitest.multipletests(p_values.flatten(), alpha=alpha, method='fdr_bh')
+    corrected_p_values = corrected_p_values.reshape(p_values.shape)
+    print('Significant differences for the mean values of the electrodes across participants')
+    print(corrected_p_values[corrected_p_values < alpha])
