@@ -124,11 +124,9 @@ class Infant(Participant):
 
 
 class Mom(Participant):
-
     '''This class represents a mother. 
     It inherits from the Participant class and provides additional methods specific to mothers.
     '''
-
     def __init__(self, path):
         super().__init__(path)
 
