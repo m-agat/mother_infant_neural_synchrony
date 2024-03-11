@@ -4,6 +4,7 @@ import os
 import numpy as np
 import json
 import re
+from mpi4py import MPI
 
 
 def validate_synchrony(dataPath, mode):
@@ -12,8 +13,21 @@ def validate_synchrony(dataPath, mode):
     connectivity_results_theta = {}  # validated results for theta frequency band 
     connectivity_results_alpha = {}  # validated results for alpha frequency band
 
+    comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
+    size = comm.Get_size()
+
+    # Calculate workload distribution for each MPI process
+    num_participants = len(os.listdir(dataPath))
+    chunk_size = num_participants // size
+    start_idx = rank * chunk_size
+    end_idx = start_idx + chunk_size
+    if rank == size - 1:
+        end_idx = num_participants
+
     # Loop over each stage (subfolder) within the participant's path
-    for participant in sorted(os.listdir(dataPath)):
+    for idx in range(start_idx, end_idx):
+        participant = sorted(os.listdir(dataPath))[idx]
         participantPath = os.path.join(dataPath, participant)
         participant_idx = re.findall(r'\d+', str(participantPath)[14:])[0]
 
@@ -90,24 +104,35 @@ def validate_synchrony(dataPath, mode):
         connectivity_results_alpha_all[participant_idx] = stage_dict_alpha_all
         connectivity_results_theta[participant_idx] = stage_dict_theta 
         connectivity_results_alpha[participant_idx] = stage_dict_alpha
+    
+    all_results_theta_all = comm.gather(connectivity_results_theta_all, root=0)
+    all_results_alpha_all = comm.gather(connectivity_results_alpha_all, root=0)
+    all_results_theta = comm.gather(connectivity_results_theta, root=0)
+    all_results_alpha = comm.gather(connectivity_results_alpha, root=0)
 
-    with open(f"nonvalidated_results_theta_{mode}.json", "w") as results_file:
-        json.dump(connectivity_results_theta_all, results_file)
-        
-    with open(f"nonvalidated_results_alpha_{mode}.json", "w") as results_file:
-        json.dump(connectivity_results_alpha_all, results_file)
+    if rank == 0:
+        combined_results_theta_all = {k: v for d in all_results_theta_all for k, v in d.items()}
+        combined_results_alpha_all = {k: v for d in all_results_alpha_all for k, v in d.items()}
+        combined_results_theta = {k: v for d in all_results_theta for k, v in d.items()}
+        combined_results_alpha = {k: v for d in all_results_alpha for k, v in d.items()}
 
-    with open(f"validated_results_theta_{mode}.json", "w") as results_file:
-        json.dump(connectivity_results_theta, results_file)
+        with open(f"nonvalidated_results_theta_{mode}.json", "w") as results_file:
+            json.dump(combined_results_theta_all, results_file)
         
-    with open(f"validated_results_alpha_{mode}.json", "w") as results_file:
-        json.dump(connectivity_results_alpha, results_file)
+        with open(f"nonvalidated_results_alpha_{mode}.json", "w") as results_file:
+            json.dump(combined_results_alpha_all, results_file)
+
+        with open(f"validated_results_theta_{mode}.json", "w") as results_file:
+            json.dump(combined_results_theta, results_file)
+        
+        with open(f"validated_results_alpha_{mode}.json", "w") as results_file:
+            json.dump(combined_results_alpha, results_file)
 
     
 # path to the folder with all participants
-gpu_path = "/home/u692590/thesis/dyad_data/preprocessed_data"
-# local_path = "/home/agata/Desktop/thesis/dyad_data/preprocessed_data/"
+# local_path = f"{os.getcwd()}/dyad_data/preprocessed_data/"
+external_disk_path = "/media/agata/My Passport/dyad_data/preprocessed_data/"
 
-validate_synchrony(dataPath=gpu_path, mode="plv")
-validate_synchrony(dataPath=gpu_path, mode="pli")
-validate_synchrony(dataPath=gpu_path, mode="wpli")
+validate_synchrony(dataPath=external_disk_path, mode="plv")
+# validate_synchrony(dataPath=external_disk_path, mode="pli")
+# validate_synchrony(dataPath=external_disk_path, mode="wpli")
