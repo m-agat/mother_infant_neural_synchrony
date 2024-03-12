@@ -42,7 +42,7 @@ source venv/bin/activate
 
 1. Run the selected file
 ```bash
-python 'script'.py
+python <filename>.py
 ```
 
 To run the validation_script on multiple cores use the following command:
