@@ -36,10 +36,10 @@ class DataLoader:
 
         idx = re.findall(r'\d+', str(self.path)[14:])[0]
         cond = re.findall('-[0-5]-', str(self.path))[0]
-        self.infant_path = f"/media/agata/My Passport/dyad_data/new/split/Infant{idx}_{cond[1]}.fif"
-        self.mother_path = f"/media/agata/My Passport/dyad_data/new/split/Mother{idx}_{cond[1]}.fif"
-        # self.infant_path = f"{os.getcwd()}/dyad_data/split/Infant{idx}_{cond[1]}.fif"
-        # self.mother_path = f"{os.getcwd()}/dyad_data/split/Mother{idx}_{cond[1]}.fif"
+        # self.infant_path = f"/media/agata/My Passport/dyad_data/new/split/Infant{idx}_{cond[1]}.fif"
+        # self.mother_path = f"/media/agata/My Passport/dyad_data/new/split/Mother{idx}_{cond[1]}.fif"
+        self.infant_path = f"{os.getcwd()}/dyad_data/split/Infant{idx}_{cond[1]}.fif"
+        self.mother_path = f"{os.getcwd()}/dyad_data/split/Mother{idx}_{cond[1]}.fif"
         self.infant_file = self.dyad_data.save(
             self.infant_path, self.infant_channels, overwrite=True)
         self.mother_file = self.dyad_data.save(
