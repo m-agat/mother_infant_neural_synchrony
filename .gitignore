@@ -1,7 +1,9 @@
 getting_started.ipynb
 thesis_env
-dyad_data
+/dyad_data
 results
+.synchrony_env
+*.json 
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

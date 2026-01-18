@@ -394,12 +394,15 @@ def regional_differences(results_path, mom_epochs_path, baby_epochs_path, ch_nam
     # Topographical groupings
     frontal_region = [2, 3]
     central_region = [4, 5]
-    temporal_region = [6, 7]
+    left_temporal = [6]
+    right_temporal = [7]
+    # temporal_region = [6, 7]
     occipital_temporal_region = [10, 11]
 
     regions =  {'frontal': frontal_region, 
                 'central': central_region, 
-                'temporal': temporal_region, 
+                'left temporal': left_temporal,
+                'right temporal': right_temporal, 
                 'occ. temporal': occipital_temporal_region
                 }
 
@@ -429,21 +432,22 @@ def regional_differences(results_path, mom_epochs_path, baby_epochs_path, ch_nam
                 print('After FDR correction')
                 print('baby region: ', region_name_baby)
                 print('mom region: ', region_name_mom)
-                print(corrected_p_value)
+                print('test statistic: ', t_stat)
+                print('corrected p-value: ', corrected_p_value)
                 p_values.append(corrected_p_value)
 
 
-regional_differences(results_path="/home/agata/Desktop/thesis/results/validated_results_theta_plv.json",
-                     mom_epochs_path="/home/agata/Desktop/thesis/results/moms_epochs_averaged.pkl",
-                     baby_epochs_path="/home/agata/Desktop/thesis/results/baby_epochs_averaged.pkl",
+regional_differences(results_path=f"{os.getcwd()}/results/validated_results_theta_wpli.json",
+                     mom_epochs_path=f"{os.getcwd()}/results/moms_epochs_averaged.pkl",
+                     baby_epochs_path=f"{os.getcwd()}/results/baby_epochs_averaged.pkl",
                      ch_names=['F3', 'F4', 'F7', 'F8', 'C3', 'C4',
                                'T7', 'T8', 'P3', 'P4', 'P7', 'P8'],
                      sfreq=250,
                      alpha=0.05)
 
-# local_path = "/home/agata/Desktop/thesis/dyad_data/preprocessed_data/"
+local_path = f"{os.getcwd()}/dyad_data/preprocessed_data/"
 # gpu_path = "/home/u692590/thesis/dyad_data/preprocessed_data"
 
-# mom_epochs_data, baby_epochs_data = average_epochs(dataPath=gpu_path)
+# mom_epochs_data, baby_epochs_data = average_epochs(dataPath=local_path)
 
 # print(np.array(mom_epochs_data).shape)
